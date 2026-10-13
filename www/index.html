@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Nebula Troll Escape</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700;800&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: #08090f;
+      color: #e2e8f0;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'JetBrains Mono', monospace;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    .crt-effect {
+      position: relative;
+    }
+    .crt-effect::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+      z-index: 15;
+      background-size: 100% 4px, 4px 100%;
+      pointer-events: none;
+    }
+    .btn-active {
+      transform: scale(0.94);
+      filter: brightness(1.25);
+    }
+    .font-chakra {
+      font-family: 'Chakra Petch', sans-serif;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen w-screen p-0 sm:p-2 bg-[#06070c]">
+
+  <!-- Mobile-First Device Chassis Container (420px max-width, 9:16 Aspect Viewport) -->
+  <div id="game-container" class="relative w-full max-w-[420px] h-screen max-h-[840px] bg-[#0f111c] border-0 sm:border-4 border-[#23273e] sm:rounded-[36px] shadow-2xl flex flex-col overflow-hidden crt-effect">
+    
+    <!-- Top HUD Bar -->
+    <header class="flex justify-between items-center px-5 pt-4 pb-2.5 bg-[#141726] border-b border-[#242840] shrink-0 z-20">
+      <div>
+        <span class="text-[10px] text-gray-400 font-bold tracking-widest uppercase block">Sector</span>
+        <span id="level-display" class="font-chakra text-xl font-black text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+          1 / 100
+        </span>
+      </div>
+
+      <div id="boss-alert" class="hidden px-2.5 py-0.5 rounded-full bg-red-950/80 border border-red-700 text-red-300 text-[11px] font-bold tracking-wider animate-pulse">
+        ⚠️ ANOMALY DETECTED
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <button id="btn-sound" class="p-1.5 bg-[#1c2035] border border-[#2e3454] rounded-lg text-cyan-400 hover:text-white cursor-pointer active:scale-95 transition-all" aria-label="Toggle Sound">
+          <svg id="icon-sound-on" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg id="icon-sound-off" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
+        <div class="text-right">
+          <span class="text-[10px] text-gray-400 font-bold tracking-widest uppercase block">Attempts</span>
+          <span id="attempts-display" class="font-chakra text-xl font-black text-rose-400">
+            0
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Testing Quick Toolbar -->
+    <nav class="px-4 py-1 bg-[#0c0e18] border-b border-[#1c2033] flex items-center justify-between text-[11px] shrink-0 z-20">
+      <div class="flex items-center gap-2 truncate">
+        <span id="sector-title" class="text-cyan-300 font-bold truncate">ZONE 1</span>
+        <span class="px-1.5 py-0.2 bg-cyan-950/70 border border-cyan-800 text-[9px] text-cyan-300 rounded">WALL-JUMP</span>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button id="btn-quick-b14" class="px-1.5 py-0.5 bg-red-950/70 border border-red-800 hover:bg-red-900/60 text-red-300 rounded text-[10px] font-bold cursor-pointer">
+          Boss 14
+        </button>
+        <button id="btn-quick-g100" class="px-1.5 py-0.5 bg-cyan-950/70 border border-cyan-800 hover:bg-cyan-900/60 text-cyan-300 rounded text-[10px] font-bold cursor-pointer">
+          Zone 100
+        </button>
+        <button id="btn-respawn" class="px-1.5 py-0.5 bg-[#1b1f33] border border-[#2b314f] text-gray-300 hover:text-white rounded text-[10px] font-bold cursor-pointer" title="Quick Respawn (R)">
+          ↺
+        </button>
+      </div>
+    </nav>
+
+    <!-- HTML5 Canvas Viewport Display -->
+    <main class="relative flex-1 w-full bg-[#090b14] overflow-hidden flex items-center justify-center">
+      <canvas id="game-canvas" width="380" height="480" class="block w-full h-full object-contain"></canvas>
+      
+      <!-- Instant 15-frame Screen Flash / Death Overlay -->
+      <div id="screen-overlay" class="absolute inset-0 bg-transparent pointer-events-none transition-colors duration-75 z-30"></div>
+
+      <!-- Victory Screen for Clearing Level 100 -->
+      <div id="victory-modal" class="hidden absolute inset-0 z-40 flex flex-col items-center justify-center p-6 bg-black/95 backdrop-blur-md text-center">
+        <div class="p-5 bg-[#141726] border-2 border-cyan-400 rounded-2xl shadow-2xl space-y-3 max-w-[340px]">
+          <div class="text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center justify-center gap-1">
+            🏆 <span>ALL 100 SECTORS ESCAPED</span>
+          </div>
+          <h2 class="font-chakra text-2xl font-black text-white tracking-wider">
+            NEBULA ESCAPED!
+          </h2>
+          <p class="text-xs text-gray-300 font-mono leading-relaxed">
+            Unstoppable reflexes! You outsmarted every falling trap, ceiling smasher, and crushed The Vanguard Boss.
+          </p>
+          <div class="p-2.5 bg-cyan-950/50 border border-cyan-800 rounded font-mono text-xs text-cyan-200">
+            <div class="flex justify-between py-0.5">
+              <span>TOTAL ATTEMPTS:</span>
+              <strong id="modal-attempts" class="text-rose-400">0</strong>
+            </div>
+          </div>
+          <button id="btn-replay" class="w-full py-2.5 bg-cyan-400 hover:bg-cyan-300 active:scale-95 text-slate-950 font-bold text-sm tracking-wider rounded-xl cursor-pointer">
+            PLAY AGAIN (SECTOR 1)
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Mobile Touch Controller HUD Layout -->
+    <footer class="bg-[#141728] border-t border-[#242842] p-5 flex justify-between items-center select-none pb-7 shrink-0 z-20">
+      <!-- Left & Right Directional Buttons -->
+      <div class="flex gap-3">
+        <button id="btn-left" class="w-16 h-16 bg-[#21253d] border-b-4 border-[#121422] active:border-cyan-700 text-white rounded-2xl flex justify-center items-center shadow-lg cursor-pointer transition-all active:bg-cyan-500 active:scale-95" aria-label="Move Left">
+          <svg class="h-8 w-8 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <button id="btn-right" class="w-16 h-16 bg-[#21253d] border-b-4 border-[#121422] active:border-cyan-700 text-white rounded-2xl flex justify-center items-center shadow-lg cursor-pointer transition-all active:bg-cyan-500 active:scale-95" aria-label="Move Right">
+          <svg class="h-8 w-8 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Jump Action Button -->
+      <div>
+        <button id="btn-jump" class="w-24 h-16 bg-[#272e54] border-b-4 border-[#14172e] active:border-emerald-700 text-white font-black tracking-wider rounded-2xl flex justify-center items-center shadow-lg cursor-pointer transition-all font-chakra active:bg-emerald-500 active:scale-95 text-base" aria-label="Jump">
+          JUMP
+        </button>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // =========================================================================
+    // RETRO SCI-FI AUDIO SYNTHESIZER (WEB AUDIO API)
+    // =========================================================================
+    class SoundSynth {
+      constructor() {
+        this.ctx = null;
+        this.isMuted = localStorage.getItem('nebula_mute') === 'true';
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.ctx = new AudioContextClass();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      toggleMute() {
+        this.isMuted = !this.isMuted;
+        localStorage.setItem('nebula_mute', this.isMuted ? 'true' : 'false');
+        return this.isMuted;
+      }
+      playLaser() {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(480, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.12);
+          gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.12);
+        } catch (e) {}
+      }
+      playExplosion() {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const bufferSize = this.ctx.sampleRate * 0.22;
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.35));
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(500, this.ctx.currentTime);
+          filter.frequency.exponentialRampToValueAtTime(60, this.ctx.currentTime + 0.22);
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.22);
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          noise.start();
+        } catch (e) {}
+      }
+      playHit() {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(260, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(70, this.ctx.currentTime + 0.09);
+          gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.09);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.09);
+        } catch (e) {}
+      }
+      playWarp() {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const notes = [440, 554.37, 659.25, 880];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.045);
+            gain.gain.setValueAtTime(0.12, this.ctx.currentTime + idx * 0.045);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.045 + 0.09);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(this.ctx.currentTime + idx * 0.045);
+            osc.stop(this.ctx.currentTime + idx * 0.045 + 0.09);
+          });
+        } catch (e) {}
+      }
+      playBossShoot() {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.15);
+        } catch (e) {}
+      }
+      playVictory() {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const chord = [523.25, 659.25, 783.99, 1046.50];
+          chord.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
+            gain.gain.setValueAtTime(0.2, this.ctx.currentTime + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.6);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(this.ctx.currentTime + idx * 0.08);
+            osc.stop(this.ctx.currentTime + 0.65);
+          });
+        } catch (e) {}
+      }
+    }
+
+    const sound = new SoundSynth();
+
+    // =========================================================================
+    // GAME CORE CONFIGURATION & CONSTANTS
+    // =========================================================================
+    const CANVAS_WIDTH = 380;
+    const CANVAS_HEIGHT = 480;
+    const GRAVITY = 0.52;
+    const FRICTION = 0.85;
+    const ACCEL = 0.95;
+    const MAX_SPEED = 5.2;
+    const JUMP_FORCE = -11.6;
+
+    const START_X = 40;
+    const START_Y = 400;
+
+    // DOM Element Handles
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    const screenOverlay = document.getElementById('screen-overlay');
+    const levelDisplay = document.getElementById('level-display');
+    const attemptsDisplay = document.getElementById('attempts-display');
+    const sectorTitle = document.getElementById('sector-title');
+    const bossAlert = document.getElementById('boss-alert');
+    const victoryModal = document.getElementById('victory-modal');
+    const modalAttempts = document.getElementById('modal-attempts');
+
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+    const btnJump = document.getElementById('btn-jump');
+    const btnSound = document.getElementById('btn-sound');
+    const iconSoundOn = document.getElementById('icon-sound-on');
+    const iconSoundOff = document.getElementById('icon-sound-off');
+    const btnReplay = document.getElementById('btn-replay');
+    const btnQuickB14 = document.getElementById('btn-quick-b14');
+    const btnQuickG100 = document.getElementById('btn-quick-g100');
+    const btnRespawn = document.getElementById('btn-respawn');
+
+    // Engine Core State
+    const engine = {
+      currentLevel: 1,
+      attempts: 0,
+      shakeFrames: 0,
+      isDead: false,
+      isBossActive: false,
+      cameraY: 0,
+      keys: { left: false, right: false, up: false },
+      player: {
+        x: START_X,
+        y: START_Y,
+        width: 16,
+        height: 16,
+        vx: 0,
+        vy: 0,
+        isGrounded: false,
+        coyoteTimer: 0,
+        jumpBuffer: 0,
+        wallContact: 0,
+        wallDir: 0,
+        wallCoyoteTimer: 0,
+        wallJumpLockTimer: 0,
+        color: '#22d3ee',
+        eyeOffset: 1
+      },
+      platforms: [],
+      hazards: [],
+      particles: [],
+      bossProjectiles: [],
+      bossEntity: null,
+      portal: { x: 330, y: 408, width: 24, height: 32 }
+    };
+
+    // Update Audio UI Status
+    function updateAudioIcon() {
+      if (sound.isMuted) {
+        iconSoundOn.classList.add('hidden');
+        iconSoundOff.classList.remove('hidden');
+      } else {
+        iconSoundOn.classList.remove('hidden');
+        iconSoundOff.classList.add('hidden');
+      }
+    }
+    updateAudioIcon();
+
+    btnSound.addEventListener('click', () => {
+      sound.toggleMute();
+      updateAudioIcon();
+    });
+
+    // =========================================================================
+    // INPUT BUFFER FIX: COMPREHENSIVE TOUCH & KEYBOARD STATE PURGE
+    // =========================================================================
+    function clearAllInputBuffers() {
+      engine.keys.left = false;
+      engine.keys.right = false;
+      engine.keys.up = false;
+
+      btnLeft.classList.remove('btn-active', 'bg-cyan-500', 'scale-95');
+      btnRight.classList.remove('btn-active', 'bg-cyan-500', 'scale-95');
+      btnJump.classList.remove('btn-active', 'bg-emerald-500', 'scale-95');
+    }
+
+    // Bind Button Touch Events
+    function bindTouchButton(btn, onDown, onUp) {
+      const handleDown = (e) => {
+        if (e.cancelable) e.preventDefault();
+        sound.init();
+        onDown();
+      };
+      const handleUp = (e) => {
+        if (e.cancelable) e.preventDefault();
+        onUp();
+      };
+
+      btn.addEventListener('touchstart', handleDown, { passive: false });
+      btn.addEventListener('touchend', handleUp, { passive: false });
+      btn.addEventListener('touchcancel', handleUp, { passive: false });
+      btn.addEventListener('mousedown', handleDown);
+      btn.addEventListener('mouseup', handleUp);
+      btn.addEventListener('mouseleave', handleUp);
+    }
+
+    bindTouchButton(
+      btnLeft,
+      () => {
+        if (engine.isDead) return;
+        engine.keys.left = true;
+        btnLeft.classList.add('bg-cyan-500', 'scale-95');
+      },
+      () => {
+        engine.keys.left = false;
+        btnLeft.classList.remove('bg-cyan-500', 'scale-95');
+      }
+    );
+
+    bindTouchButton(
+      btnRight,
+      () => {
+        if (engine.isDead) return;
+        engine.keys.right = true;
+        btnRight.classList.add('bg-cyan-500', 'scale-95');
+      },
+      () => {
+        engine.keys.right = false;
+        btnRight.classList.remove('bg-cyan-500', 'scale-95');
+      }
+    );
+
+    bindTouchButton(
+      btnJump,
+      () => {
+        if (engine.isDead) return;
+        engine.keys.up = true;
+        engine.player.jumpBuffer = 7;
+        btnJump.classList.add('bg-emerald-500', 'scale-95');
+      },
+      () => {
+        engine.keys.up = false;
+        btnJump.classList.remove('bg-emerald-500', 'scale-95');
+      }
+    );
+
+    // Global Key Handlers
+    window.addEventListener('keydown', (e) => {
+      sound.init();
+      const k = e.key.toLowerCase();
+      if (k === 'arrowleft' || k === 'a') {
+        e.preventDefault();
+        if (!engine.isDead) {
+          engine.keys.left = true;
+          btnLeft.classList.add('bg-cyan-500', 'scale-95');
+        }
+      }
+      if (k === 'arrowright' || k === 'd') {
+        e.preventDefault();
+        if (!engine.isDead) {
+          engine.keys.right = true;
+          btnRight.classList.add('bg-cyan-500', 'scale-95');
+        }
+      }
+      if (k === 'arrowup' || k === 'w' || e.code === 'Space' || k === ' ') {
+        e.preventDefault();
+        if (!engine.isDead) {
+          engine.keys.up = true;
+          engine.player.jumpBuffer = 7;
+          btnJump.classList.add('bg-emerald-500', 'scale-95');
+        }
+      }
+      if (k === 'r') {
+        killPlayer();
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'arrowleft' || k === 'a') {
+        engine.keys.left = false;
+        btnLeft.classList.remove('bg-cyan-500', 'scale-95');
+      }
+      if (k === 'arrowright' || k === 'd') {
+        engine.keys.right = false;
+        btnRight.classList.remove('bg-cyan-500', 'scale-95');
+      }
+      if (k === 'arrowup' || k === 'w' || e.code === 'Space' || k === ' ') {
+        engine.keys.up = false;
+        btnJump.classList.remove('bg-emerald-500', 'scale-95');
+      }
+    });
+
+    // Window Blur & Focus Recovery Protection
+    window.addEventListener('blur', clearAllInputBuffers);
+    window.addEventListener('touchend', (e) => {
+      if (e.touches.length === 0) {
+        clearAllInputBuffers();
+      }
+    });
+
+    // =========================================================================
+    // DEATH STATE HANDLING: SCREEN SHAKE, OVERLAY, PARTICLES & RECOVERY
+    // =========================================================================
+    function killPlayer() {
+      if (engine.isDead) return;
+      engine.isDead = true;
+
+      // Forceful purge of all input buffers immediately
+      clearAllInputBuffers();
+
+      engine.attempts++;
+      attemptsDisplay.textContent = engine.attempts;
+
+      // 1. Instant 15-frame screen shake
+      engine.shakeFrames = 15;
+
+      // 2. Flash red screen overlay
+      screenOverlay.style.backgroundColor = 'rgba(239, 68, 68, 0.7)';
+
+      sound.playExplosion();
+
+      // 3. Burst player block into exactly 25 floating particle shapes
+      const spawnX = engine.player.x + engine.player.width / 2;
+      const spawnY = engine.player.y + engine.player.height / 2;
+      for (let i = 0; i < 25; i++) {
+        engine.particles.push({
+          x: spawnX,
+          y: spawnY,
+          vx: (Math.random() - 0.5) * 11,
+          vy: (Math.random() - 0.5) * 11,
+          radius: Math.random() * 3.5 + 1.2,
+          color: i % 2 === 0 ? '#22d3ee' : '#f87171',
+          alpha: 1
+        });
+      }
+
+      // 4. Move player's core coordinates off-screen
+      engine.player.x = -9999;
+      engine.player.y = -9999;
+      engine.player.vx = 0;
+      engine.player.vy = 0;
+
+      // 5. Clean 250ms delayed reset back to start coordinate
+      setTimeout(() => {
+        engine.player.x = START_X;
+        engine.player.y = engine.currentLevel === 100 ? 1320 : START_Y;
+        engine.player.vx = 0;
+        engine.player.vy = 0;
+        engine.player.isGrounded = false;
+        engine.player.coyoteTimer = 0;
+        engine.player.jumpBuffer = 0;
+        engine.player.wallContact = 0;
+        engine.player.wallDir = 0;
+        engine.player.wallCoyoteTimer = 0;
+        engine.player.wallJumpLockTimer = 0;
+
+        // Reset dynamic platforms and traps
+        engine.platforms.forEach((plat) => {
+          if (plat.type === 'troll-drop') {
+            plat.triggered = false;
+            plat.vy = 0;
+            plat.y = plat.startY || plat.y;
+          }
+          if (plat.type === 'troll-smasher') {
+            plat.triggered = false;
+            plat.y = plat.startY || -40;
+            plat.speed = 0;
+          }
+        });
+
+        // Reset hidden hazards
+        engine.hazards.forEach((h) => {
+          if (h.type === 'hidden-spike') {
+            h.revealed = false;
+          }
+        });
+
+        // Clear boss projectiles
+        engine.bossProjectiles = [];
+
+        screenOverlay.style.backgroundColor = 'transparent';
+        engine.isDead = false;
+        clearAllInputBuffers();
+      }, 250);
+    }
+
+    // =========================================================================
+    // PROCEDURAL LEVEL LOOP (1 - 100)
+    // =========================================================================
+    function buildLevelData(lvl) {
+      engine.platforms = [];
+      engine.hazards = [];
+      engine.bossProjectiles = [];
+      engine.bossEntity = null;
+      engine.isBossActive = false;
+      bossAlert.classList.add('hidden');
+
+      levelDisplay.textContent = lvl + ' / 100';
+
+      // -------------------------------------------------------------
+      // LEVEL 100: ULTIMATE VERTICAL SCROLLING GAUNTLET LAYOUT
+      // -------------------------------------------------------------
+      if (lvl === 100) {
+        sectorTitle.textContent = 'SECTOR 100: FINAL GAUNTLET';
+        
+        // Vertical shaft boundaries: height = 1400px
+        engine.platforms.push({ x: 0, y: 1360, width: 380, height: 40, type: 'floor' });
+        engine.platforms.push({ x: 0, y: 0, width: 14, height: 1400, type: 'wall' });
+        engine.platforms.push({ x: 366, y: 0, width: 14, height: 1400, type: 'wall' });
+
+        // Goal Portal at Summit
+        engine.portal.x = 178;
+        engine.portal.y = 60;
+
+        // Ascent Platforms: mix of moving, troll drops, and wall jump shafts
+        engine.platforms.push({ x: 60, y: 1260, width: 80, height: 12, type: 'troll-drop', startY: 1260 });
+        engine.platforms.push({ x: 230, y: 1180, width: 80, height: 12, type: 'moving', minX: 180, maxX: 280, speed: 2.2, direction: 1 });
+        
+        // Wall shaft for wall jumps
+        engine.platforms.push({ x: 180, y: 980, width: 14, height: 160, type: 'wall' });
+        engine.platforms.push({ x: 40, y: 1040, width: 70, height: 12, type: 'solid' });
+        engine.platforms.push({ x: 270, y: 980, width: 70, height: 12, type: 'solid' });
+
+        // Smasher Gauntlet Tier
+        engine.platforms.push({ x: 120, y: 840, width: 140, height: 12, type: 'solid' });
+        engine.platforms.push({ x: 165, y: 640, width: 50, height: 40, type: 'troll-smasher', startY: 640, targetY: 830, speed: 0 });
+        
+        // Moving Laser Ledges
+        engine.platforms.push({ x: 50, y: 700, width: 70, height: 12, type: 'moving', minX: 30, maxX: 160, speed: 2.6, direction: 1 });
+        engine.platforms.push({ x: 250, y: 560, width: 70, height: 12, type: 'moving', minX: 200, maxX: 300, speed: 2.8, direction: -1 });
+
+        // High Summit Reach
+        engine.platforms.push({ x: 80, y: 420, width: 60, height: 12, type: 'troll-drop', startY: 420 });
+        engine.platforms.push({ x: 240, y: 320, width: 60, height: 12, type: 'solid' });
+        engine.platforms.push({ x: 140, y: 200, width: 100, height: 12, type: 'solid' });
+        engine.platforms.push({ x: 150, y: 92, width: 80, height: 12, type: 'solid' });
+
+        // Hazards throughout vertical gauntlet
+        engine.hazards.push({ x: 140, y: 1345, width: 120, height: 15, type: 'spike' });
+        engine.hazards.push({ x: 20, y: 900, width: 80, height: 12, type: 'spike' });
+        engine.hazards.push({ x: 270, y: 760, width: 80, height: 12, type: 'spike' });
+        engine.hazards.push({ x: 150, y: 260, width: 80, height: 12, type: 'hidden-spike', revealDist: 50 });
+
+        return;
+      }
+
+      // -------------------------------------------------------------
+      // STANDARD LEVEL BASICS (Boundary Walls & Floor)
+      // -------------------------------------------------------------
+      engine.platforms.push({ x: 0, y: 440, width: 380, height: 40, type: 'floor' });
+      engine.platforms.push({ x: 0, y: 0, width: 12, height: 480, type: 'wall' });
+      engine.platforms.push({ x: 368, y: 0, width: 12, height: 480, type: 'wall' });
+
+      engine.portal.x = 330;
+      engine.portal.y = 408;
+
+      // -------------------------------------------------------------
+      // LEVEL 14: DEDICATED BOSS ARENA ("THE VANGUARD")
+      // -------------------------------------------------------------
+      if (lvl === 14) {
+        sectorTitle.textContent = 'ARENA: THE VANGUARD BOSS';
+        engine.isBossActive = true;
+        bossAlert.classList.remove('hidden');
+
+        // Hide exit portal until boss is defeated
+        engine.portal.x = -9999;
+
+        // Boss entity initialization
+        engine.bossEntity = {
+          x: 270,
+          y: 90,
+          width: 64,
+          height: 64,
+          speed: 2.4,
+          direction: 1,
+          timer: 50,
+          shootTimer: 60,
+          hp: 4,
+          maxHp: 4,
+          state: 'hover',
+          slamVy: 0,
+          hitFlash: 0
+        };
+
+        // Arena Platform Columns
+        engine.platforms.push({ x: 30, y: 310, width: 90, height: 12, type: 'solid' });
+        engine.platforms.push({ x: 260, y: 310, width: 90, height: 12, type: 'solid' });
+        engine.platforms.push({ x: 140, y: 210, width: 100, height: 12, type: 'solid' });
+        // Vertical wall platform in arena to wall jump
+        engine.platforms.push({ x: 183, y: 150, width: 14, height: 140, type: 'wall' });
+
+        // Center floor spikes to punish poor jumps
+        engine.hazards.push({ x: 130, y: 425, width: 120, height: 15, type: 'spike' });
+        return;
+      }
+
+      // -------------------------------------------------------------
+      // LEVELS 1 - 13: FALLING PLATFORMS & SPIKE HAZARD FLOORS
+      // -------------------------------------------------------------
+      if (lvl >= 1 && lvl <= 13) {
+        sectorTitle.textContent = 'ZONE ' + lvl + ': UNSTABLE CORE';
+
+        // Stepped troll drop platforms
+        engine.platforms.push({ x: 95, y: 360, width: 70, height: 12, type: 'troll-drop', startY: 360 });
+        engine.platforms.push({ x: 210, y: 290, width: 70, height: 12, type: 'troll-drop', startY: 290 });
+        engine.platforms.push({ x: 120, y: 210, width: 80, height: 12, type: 'solid' });
+
+        if (lvl % 2 === 0) {
+          // Vertical wall platform for wall-jumping
+          engine.platforms.push({ x: 183, y: 170, width: 14, height: 150, type: 'wall' });
+        }
+
+        // Spike Hazard Floors
+        engine.hazards.push({ x: 160, y: 425, width: 65, height: 15, type: 'spike' });
+
+        if (lvl >= 6) {
+          engine.hazards.push({ x: 290, y: 425, width: 25, height: 15, type: 'hidden-spike', revealDist: 50 });
+        }
+        return;
+      }
+
+      // -------------------------------------------------------------
+      // LEVELS 15 - 99: PROGRESSIVELY FASTER OBSTACLES & SMASHERS
+      // -------------------------------------------------------------
+      sectorTitle.textContent = 'ZONE ' + lvl + ': DEEP ANOMALY';
+
+      const tierSpeed = 1.6 + (lvl - 15) * 0.04;
+      const seed = (lvl * 9301 + 49297) % 233280;
+
+      // Platform Layout variations
+      if (seed % 3 === 0) {
+        // Moving platform tier
+        engine.platforms.push({
+          x: 90,
+          y: 340,
+          width: 65,
+          height: 12,
+          type: 'moving',
+          minX: 60,
+          maxX: 220,
+          speed: Math.min(tierSpeed, 3.8),
+          direction: 1
+        });
+        engine.platforms.push({ x: 220, y: 260, width: 65, height: 12, type: 'solid' });
+        engine.platforms.push({ x: 130, y: 180, width: 70, height: 12, type: 'troll-drop', startY: 180 });
+      } else if (seed % 3 === 1) {
+        // Ceiling Smasher Trap
+        engine.platforms.push({ x: 90, y: 350, width: 60, height: 12, type: 'solid' });
+        engine.platforms.push({ x: 220, y: 350, width: 60, height: 12, type: 'solid' });
+        engine.platforms.push({
+          x: 150,
+          y: -40,
+          width: 50,
+          height: 40,
+          type: 'troll-smasher',
+          startY: -40,
+          targetY: 400,
+          speed: 0
+        });
+      } else {
+        // Multi-tier wall jump challenge
+        engine.platforms.push({ x: 80, y: 360, width: 50, height: 12, type: 'solid' });
+        engine.platforms.push({ x: 180, y: 190, width: 14, height: 160, type: 'wall' });
+        engine.platforms.push({ x: 250, y: 240, width: 60, height: 12, type: 'solid' });
+      }
+
+      // Hazards: Spikes & Hidden Proximity Traps
+      engine.hazards.push({ x: 120, y: 425, width: 130, height: 15, type: 'spike' });
+      engine.hazards.push({
+        x: 160 + (seed % 90),
+        y: 240,
+        width: 30,
+        height: 15,
+        type: 'hidden-spike',
+        revealDist: 48
+      });
+    }
+
+    function loadLevel(lvl) {
+      engine.currentLevel = lvl;
+      engine.isDead = false;
+      clearAllInputBuffers();
+
+      engine.player.x = START_X;
+      engine.player.y = lvl === 100 ? 1320 : START_Y;
+      engine.player.vx = 0;
+      engine.player.vy = 0;
+      engine.player.isGrounded = false;
+      engine.player.coyoteTimer = 0;
+      engine.player.jumpBuffer = 0;
+      engine.player.wallContact = 0;
+      engine.player.wallDir = 0;
+      engine.player.wallCoyoteTimer = 0;
+      engine.player.wallJumpLockTimer = 0;
+
+      buildLevelData(lvl);
+      sound.playWarp();
+    }
+
+    // Quick Test Buttons
+    btnQuickB14.addEventListener('click', () => loadLevel(14));
+    btnQuickG100.addEventListener('click', () => loadLevel(100));
+    btnRespawn.addEventListener('click', killPlayer);
+    btnReplay.addEventListener('click', () => {
+      victoryModal.classList.add('hidden');
+      loadLevel(1);
+    });
+
+    // =========================================================================
+    // MAIN 60 FPS GAME LOOP & PHYSICS ENGINE
+    // =========================================================================
+    function gameLoop() {
+      const p = engine.player;
+
+      if (!engine.isDead) {
+        // -------------------------------------------------------------
+        // HORIZONTAL ACCELERATION & MOMENTUM
+        // -------------------------------------------------------------
+        if (p.wallJumpLockTimer > 0) {
+          p.wallJumpLockTimer--;
+          if (p.vx > 0 && engine.keys.left) p.vx -= ACCEL * 0.25;
+          else if (p.vx < 0 && engine.keys.right) p.vx += ACCEL * 0.25;
+        } else {
+          if (engine.keys.left) {
+            p.vx -= ACCEL;
+            p.eyeOffset = -1;
+          } else if (engine.keys.right) {
+            p.vx += ACCEL;
+            p.eyeOffset = 1;
+          } else {
+            p.vx *= FRICTION;
+          }
+          p.vx = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, p.vx));
+        }
+
+        // Gravity
+        p.vy = Math.min(13, p.vy + GRAVITY);
+
+        // Coyote Timer & Jump Buffering
+        if (p.isGrounded) {
+          p.coyoteTimer = 7;
+        } else if (p.coyoteTimer > 0) {
+          p.coyoteTimer--;
+        }
+        if (p.jumpBuffer > 0) p.jumpBuffer--;
+
+        // Jump Execution: Ground or Wall-Jump
+        if (p.jumpBuffer > 0 && p.coyoteTimer > 0) {
+          p.vy = JUMP_FORCE;
+          p.coyoteTimer = 0;
+          p.jumpBuffer = 0;
+          p.isGrounded = false;
+          sound.playLaser();
+        } else if (p.jumpBuffer > 0 && !p.isGrounded && p.wallCoyoteTimer > 0) {
+          // Wall-jump: Push away in opposite direction and upward!
+          const wallDir = p.wallDir;
+          const pushDir = -wallDir;
+          p.vx = pushDir * 5.8;
+          p.vy = JUMP_FORCE * 0.96;
+          p.jumpBuffer = 0;
+          p.wallCoyoteTimer = 0;
+          p.wallContact = 0;
+          p.coyoteTimer = 0;
+          p.wallJumpLockTimer = 8;
+          p.eyeOffset = pushDir;
+          sound.playLaser();
+
+          const kickX = wallDir === -1 ? p.x : p.x + p.width;
+          for (let i = 0; i < 8; i++) {
+            engine.particles.push({
+              x: kickX,
+              y: p.y + p.height / 2 + (Math.random() - 0.5) * 8,
+              vx: pushDir * (Math.random() * 2.5 + 1.2),
+              vy: (Math.random() - 0.5) * 4 - 1.5,
+              radius: Math.random() * 2 + 1,
+              color: '#38bdf8',
+              alpha: 1
+            });
+          }
+        }
+
+        // Variable Jump Cut
+        if (!engine.keys.up && p.vy < -3.5) {
+          p.vy = -3.5;
+        }
+
+        // -------------------------------------------------------------
+        // DYNAMIC PLATFORM UPDATES
+        // -------------------------------------------------------------
+        engine.platforms.forEach((plat) => {
+          if (plat.type === 'moving') {
+            plat.x += (plat.speed || 1.8) * (plat.direction || 1);
+            if (plat.minX && plat.x <= plat.minX) {
+              plat.x = plat.minX;
+              plat.direction = 1;
+            } else if (plat.maxX && plat.x >= plat.maxX) {
+              plat.x = plat.maxX;
+              plat.direction = -1;
+            }
+          }
+
+          if (plat.type === 'troll-drop' && plat.triggered) {
+            plat.vy = (plat.vy || 0) + 0.6;
+            plat.y += plat.vy;
+          }
+
+          if (plat.type === 'troll-smasher') {
+            if (!plat.triggered && Math.abs(p.x + p.width / 2 - (plat.x + plat.width / 2)) < 45) {
+              plat.triggered = true;
+              plat.speed = 1;
+              sound.playHit();
+            }
+            if (plat.triggered) {
+              plat.speed = (plat.speed || 1) + 0.8;
+              plat.y += plat.speed;
+              if (plat.targetY && plat.y >= plat.targetY) {
+                plat.y = plat.targetY;
+                plat.speed = 0;
+              }
+            }
+          }
+        });
+
+        // Hidden Spikes Proximity Trigger
+        engine.hazards.forEach((h) => {
+          if (h.type === 'hidden-spike' && !h.revealed) {
+            const dist = Math.hypot(
+              p.x + p.width / 2 - (h.x + h.width / 2),
+              p.y + p.height / 2 - (h.y + h.height / 2)
+            );
+            if (dist < (h.revealDist || 48)) {
+              h.revealed = true;
+              sound.playHit();
+            }
+          }
+        });
+
+        // -------------------------------------------------------------
+        // LEVEL 14 BOSS LOGIC: THE VANGUARD
+        // -------------------------------------------------------------
+        if (engine.bossEntity) {
+          const boss = engine.bossEntity;
+          if (boss.hitFlash > 0) boss.hitFlash--;
+
+          // Boss Shooting Circular Hazards
+          boss.shootTimer--;
+          if (boss.shootTimer <= 0) {
+            boss.shootTimer = 90;
+            const angle = Math.atan2(p.y - (boss.y + boss.height / 2), p.x - (boss.x + boss.width / 2));
+            engine.bossProjectiles.push({
+              x: boss.x + boss.width / 2,
+              y: boss.y + boss.height / 2,
+              vx: Math.cos(angle) * 3.2,
+              vy: Math.sin(angle) * 3.2,
+              radius: 6
+            });
+            sound.playBossShoot();
+          }
+
+          if (boss.state === 'hover') {
+            const targetX = p.x - boss.width / 2 + p.width / 2;
+            boss.x += (targetX - boss.x) * 0.06;
+            boss.y = 80 + Math.sin(Date.now() * 0.005) * 10;
+
+            boss.timer--;
+            if (boss.timer <= 0) {
+              boss.state = 'shake';
+              boss.timer = 20;
+              sound.playHit();
+            }
+          } else if (boss.state === 'shake') {
+            boss.x += (Math.random() - 0.5) * 5;
+            boss.timer--;
+            if (boss.timer <= 0) {
+              boss.state = 'slam';
+              boss.slamVy = 16;
+            }
+          } else if (boss.state === 'slam') {
+            boss.y += boss.slamVy;
+
+            // Player squashed by boss body
+            if (
+              p.x < boss.x + boss.width &&
+              p.x + p.width > boss.x &&
+              p.y < boss.y + boss.height &&
+              p.y + p.height > boss.y
+            ) {
+              killPlayer();
+              return;
+            }
+
+            // Impact with floor
+            if (boss.y >= 380) {
+              boss.y = 380;
+              engine.shakeFrames = 10;
+              sound.playExplosion();
+              boss.state = 'rebound';
+              boss.timer = 25;
+            }
+          } else if (boss.state === 'rebound') {
+            boss.timer--;
+            if (boss.timer <= 0) {
+              boss.y += (80 - boss.y) * 0.1;
+              if (boss.y <= 88) {
+                boss.state = 'hover';
+                boss.timer = 50;
+              }
+            }
+          }
+
+          // STOMP MECHANIC: Player jumps on boss's head to deal damage!
+          if (
+            p.vy > 0 &&
+            p.y + p.height >= boss.y &&
+            p.y + p.height <= boss.y + 18 &&
+            p.x + p.width > boss.x + 6 &&
+            p.x < boss.x + boss.width - 6
+          ) {
+            p.vy = -10.5; // Bounce player upward
+            boss.hp--;
+            boss.hitFlash = 12;
+            sound.playHit();
+
+            if (boss.hp <= 0) {
+              // Boss Defeated!
+              engine.bossEntity = null;
+              engine.isBossActive = false;
+              bossAlert.classList.add('hidden');
+              engine.portal.x = 330;
+              engine.portal.y = 408;
+              sound.playVictory();
+            }
+          }
+        }
+
+        // Update Boss Circular Projectiles
+        for (let i = engine.bossProjectiles.length - 1; i >= 0; i--) {
+          const bp = engine.bossProjectiles[i];
+          bp.x += bp.vx;
+          bp.y += bp.vy;
+
+          // Check hit against player
+          const dist = Math.hypot(p.x + p.width / 2 - bp.x, p.y + p.height / 2 - bp.y);
+          if (dist < bp.radius + p.width / 2) {
+            killPlayer();
+            return;
+          }
+
+          if (bp.x < 0 || bp.x > CANVAS_WIDTH || bp.y < 0 || bp.y > CANVAS_HEIGHT) {
+            engine.bossProjectiles.splice(i, 1);
+          }
+        }
+
+        // -------------------------------------------------------------
+        // AABB COLLISION RESOLUTION (Floors, Walls & Ceilings)
+        // -------------------------------------------------------------
+        const nextX = p.x + p.vx;
+        const nextY = p.y + p.vy;
+
+        p.isGrounded = false;
+        let directWallHit = 0;
+
+        // X Movement
+        p.x = nextX;
+        for (const plat of engine.platforms) {
+          if (
+            p.x < plat.x + plat.width &&
+            p.x + p.width > plat.x &&
+            p.y < plat.y + plat.height &&
+            p.y + p.height > plat.y
+          ) {
+            if (p.vx > 0) {
+              p.x = plat.x - p.width;
+              if (plat.type === 'wall' || plat.height >= plat.width) {
+                directWallHit = 1;
+              }
+            } else if (p.vx < 0) {
+              p.x = plat.x + plat.width;
+              if (plat.type === 'wall' || plat.height >= plat.width) {
+                directWallHit = -1;
+              }
+            }
+            p.vx = 0;
+          }
+        }
+
+        // Y Movement
+        p.y = nextY;
+        for (const plat of engine.platforms) {
+          if (
+            p.x < plat.x + plat.width &&
+            p.x + p.width > plat.x &&
+            p.y < plat.y + plat.height &&
+            p.y + p.height > plat.y
+          ) {
+            if (p.vy > 0) {
+              p.y = plat.y - p.height;
+              p.vy = 0;
+              p.isGrounded = true;
+
+              if (plat.type === 'troll-drop' && !plat.triggered) {
+                plat.triggered = true;
+                plat.vy = 0.5;
+                sound.playHit();
+              }
+            } else if (p.vy < 0) {
+              p.y = plat.y + plat.height;
+              p.vy = 0;
+            }
+          }
+        }
+
+        // Wall Contact Proximity Detection
+        let touchingWallDir = directWallHit;
+        if (touchingWallDir === 0) {
+          for (const plat of engine.platforms) {
+            if (plat.type === 'wall' || plat.height > plat.width) {
+              const verticalOverlap = p.y + p.height > plat.y + 2 && p.y < plat.y + plat.height - 2;
+              if (verticalOverlap) {
+                if (Math.abs(p.x - (plat.x + plat.width)) <= 3) {
+                  touchingWallDir = -1;
+                  break;
+                } else if (Math.abs((p.x + p.width) - plat.x) <= 3) {
+                  touchingWallDir = 1;
+                  break;
+                }
+              }
+            }
+          }
+        }
+
+        if (touchingWallDir !== 0 && !p.isGrounded) {
+          p.wallContact = touchingWallDir;
+          p.wallDir = touchingWallDir;
+          p.wallCoyoteTimer = 8;
+
+          // Wall slide friction: cap fall speed
+          if (p.vy > 3.0) {
+            p.vy = 3.0;
+            if (Math.random() < 0.25) {
+              const slideX = touchingWallDir === -1 ? p.x : p.x + p.width;
+              engine.particles.push({
+                x: slideX,
+                y: p.y + p.height,
+                vx: -touchingWallDir * 0.8,
+                vy: -Math.random() * 1.5,
+                radius: 1.5,
+                color: '#38bdf8',
+                alpha: 0.6
+              });
+            }
+          }
+        } else {
+          p.wallContact = 0;
+          if (p.isGrounded) {
+            p.wallCoyoteTimer = 0;
+          } else if (p.wallCoyoteTimer > 0) {
+            p.wallCoyoteTimer--;
+          }
+        }
+
+        // Hazard Collision Checks
+        for (const h of engine.hazards) {
+          if (h.type === 'hidden-spike' && !h.revealed) continue;
+
+          if (
+            p.x < h.x + h.width &&
+            p.x + p.width > h.x &&
+            p.y < h.y + h.height &&
+            p.y + p.height > h.y
+          ) {
+            killPlayer();
+            return;
+          }
+        }
+
+        // Out of Bounds Check (Floor Pit)
+        const fallLimit = engine.currentLevel === 100 ? 1440 : CANVAS_HEIGHT + 20;
+        if (p.y > fallLimit) {
+          killPlayer();
+          return;
+        }
+
+        // Goal Portal Collision Check
+        if (engine.portal.x > 0) {
+          if (
+            p.x < engine.portal.x + engine.portal.width &&
+            p.x + p.width > engine.portal.x &&
+            p.y < engine.portal.y + engine.portal.height &&
+            p.y + p.height > engine.portal.y
+          ) {
+            if (engine.currentLevel < 100) {
+              loadLevel(engine.currentLevel + 1);
+            } else {
+              modalAttempts.textContent = engine.attempts;
+              victoryModal.classList.remove('hidden');
+              sound.playVictory();
+            }
+            return;
+          }
+        }
+      }
+
+      // Update Particles
+      for (let i = engine.particles.length - 1; i >= 0; i--) {
+        const pt = engine.particles[i];
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+        pt.alpha -= 0.025;
+        if (pt.alpha <= 0) {
+          engine.particles.splice(i, 1);
+        }
+      }
+
+      if (engine.shakeFrames > 0) engine.shakeFrames--;
+
+      // -------------------------------------------------------------
+      // RENDER RETRO SCENE ON CANVAS
+      // -------------------------------------------------------------
+      ctx.save();
+
+      // Screen Shake Translation
+      if (engine.shakeFrames > 0) {
+        ctx.translate((Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6);
+      }
+
+      // Camera Vertical Scrolling (Level 100)
+      if (engine.currentLevel === 100) {
+        const targetCamY = p.y - CANVAS_HEIGHT / 2;
+        engine.cameraY += (targetCamY - engine.cameraY) * 0.1;
+        engine.cameraY = Math.max(0, Math.min(1400 - CANVAS_HEIGHT, engine.cameraY));
+        ctx.translate(0, -engine.cameraY);
+      }
+
+      // Background
+      ctx.fillStyle = '#080a12';
+      ctx.fillRect(0, 0, CANVAS_WIDTH, engine.currentLevel === 100 ? 1400 : CANVAS_HEIGHT);
+
+      // Cyber Grid Lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+      const maxY = engine.currentLevel === 100 ? 1400 : CANVAS_HEIGHT;
+      for (let x = 0; x < CANVAS_WIDTH; x += 28) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, maxY);
+        ctx.stroke();
+      }
+      for (let y = 0; y < maxY; y += 28) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(CANVAS_WIDTH, y);
+        ctx.stroke();
+      }
+
+      // Render Platforms
+      for (const plat of engine.platforms) {
+        ctx.save();
+        if (plat.type === 'floor') {
+          ctx.fillStyle = '#1c1f34';
+          ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+          ctx.strokeStyle = '#383e66';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+        } else if (plat.type === 'wall') {
+          ctx.fillStyle = '#141728';
+          ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+
+          // Wall grip ridges
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+          for (let gy = plat.y + 12; gy < plat.y + plat.height - 6; gy += 18) {
+            ctx.fillRect(plat.x + 2, gy, Math.max(2, plat.width - 4), 2);
+          }
+        } else if (plat.type === 'troll-smasher') {
+          ctx.fillStyle = '#f43f5e';
+          ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+          ctx.strokeStyle = '#fda4af';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+        } else if (plat.type === 'troll-drop') {
+          ctx.fillStyle = plat.triggered ? '#ef4444' : '#e2e8f0';
+          ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+          ctx.strokeStyle = '#94a3b8';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+        } else {
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+          ctx.strokeStyle = '#64748b';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+        }
+        ctx.restore();
+      }
+
+      // Render Hazards
+      for (const h of engine.hazards) {
+        if (h.type === 'hidden-spike' && !h.revealed) continue;
+
+        ctx.save();
+        ctx.fillStyle = '#f43f5e';
+        ctx.shadowColor = '#f43f5e';
+        ctx.shadowBlur = 8;
+        const count = Math.max(1, Math.floor(h.width / 12));
+        const step = h.width / count;
+        for (let s = 0; s < count; s++) {
+          const sx = h.x + s * step;
+          ctx.beginPath();
+          ctx.moveTo(sx, h.y + h.height);
+          ctx.lineTo(sx + step, h.y + h.height);
+          ctx.lineTo(sx + step / 2, h.y);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // Render Goal Portal
+      if (engine.portal.x > 0) {
+        ctx.save();
+        ctx.shadowColor = '#22d3ee';
+        ctx.shadowBlur = 16;
+        ctx.fillStyle = '#22d3ee';
+        ctx.fillRect(engine.portal.x, engine.portal.y, engine.portal.width, engine.portal.height);
+
+        ctx.fillStyle = '#090b14';
+        ctx.fillRect(engine.portal.x + 3, engine.portal.y + 3, engine.portal.width - 6, engine.portal.height - 6);
+
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(
+          engine.portal.x + engine.portal.width / 2,
+          engine.portal.y + engine.portal.height / 2,
+          5 + Math.sin(Date.now() * 0.008) * 1.5,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Render Boss: The Vanguard
+      if (engine.bossEntity) {
+        const boss = engine.bossEntity;
+        ctx.save();
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = 18;
+
+        ctx.fillStyle = boss.hitFlash > 0 ? '#ffffff' : '#dc2626';
+        ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+
+        ctx.strokeStyle = '#f87171';
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(boss.x, boss.y, boss.width, boss.height);
+
+        // Stomp indicator top plate
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(boss.x + 8, boss.y, boss.width - 16, 4);
+
+        // Boss Eyes
+        const lookDir = Math.sign(p.x - boss.x);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(boss.x + 12, boss.y + 20, 10, 12);
+        ctx.fillRect(boss.x + boss.width - 22, boss.y + 20, 10, 12);
+
+        // Eyebrows
+        ctx.fillStyle = '#1e1b4b';
+        ctx.beginPath();
+        ctx.moveTo(boss.x + 8, boss.y + 16);
+        ctx.lineTo(boss.x + 24, boss.y + 20);
+        ctx.lineTo(boss.x + 8, boss.y + 20);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(boss.x + boss.width - 8, boss.y + 16);
+        ctx.lineTo(boss.x + boss.width - 24, boss.y + 20);
+        ctx.lineTo(boss.x + boss.width - 8, boss.y + 20);
+        ctx.fill();
+
+        // Pupils
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(boss.x + 15 + lookDir * 2, boss.y + 24, 4, 6);
+        ctx.fillRect(boss.x + boss.width - 19 + lookDir * 2, boss.y + 24, 4, 6);
+
+        // Boss HP Bar above head
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(boss.x, boss.y - 12, boss.width, 6);
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(boss.x, boss.y - 12, (boss.width * (boss.hp / boss.maxHp)), 6);
+
+        ctx.restore();
+      }
+
+      // Render Boss Projectiles
+      for (const bp of engine.bossProjectiles) {
+        ctx.save();
+        ctx.fillStyle = '#f43f5e';
+        ctx.shadowColor = '#f43f5e';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(bp.x, bp.y, bp.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Render Player Character
+      if (!engine.isDead) {
+        ctx.save();
+        ctx.shadowColor = '#22d3ee';
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.width, p.height);
+
+        ctx.strokeStyle = '#0891b2';
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(p.x, p.y, p.width, p.height);
+
+        // Wall grip aura
+        if (p.wallContact !== 0 && !p.isGrounded) {
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          if (p.wallContact === -1) {
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.x, p.y + p.height);
+          } else {
+            ctx.moveTo(p.x + p.width, p.y);
+            ctx.lineTo(p.x + p.width, p.y + p.height);
+          }
+          ctx.stroke();
+        }
+
+        const eyeX = p.eyeOffset === 1 ? 3 : -1;
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(p.x + 4 + eyeX, p.y + 4, 3, 4);
+        ctx.fillRect(p.x + 9 + eyeX, p.y + 4, 3, 4);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(p.x + 5 + eyeX, p.y + 4, 1.5, 1.5);
+        ctx.fillRect(p.x + 10 + eyeX, p.y + 4, 1.5, 1.5);
+        ctx.restore();
+      }
+
+      // Render Particles
+      for (const pt of engine.particles) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, pt.alpha);
+        ctx.fillStyle = pt.color;
+        ctx.shadowColor = pt.color;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.restore();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Initialize Game on Load
+    loadLevel(1);
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
