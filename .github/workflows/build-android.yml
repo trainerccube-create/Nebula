@@ -8,14 +8,14 @@ on:
 jobs:
   build:
     name: Build Capacitor Android APK
-    runs-on: ubuntu-24.04  # Explicitly pins the OS to prevent version migration errors
+    runs-on: ubuntu-24.04
     
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
       - name: Set up Java Runtime Environment
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5   # Upgraded to v5 to fix deprecation
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -23,13 +23,10 @@ jobs:
       - name: Set up Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'          # Upgraded to Node 22 to fix runner environment issues
 
-      - name: Force Generate Missing Dependencies Lock File
-        run: npm install --package-lock-only
-
-      - name: Install Core Project Dependencies
-        run: npm ci
+      - name: Install Project Dependencies
+        run: npm install              # Standard install dynamically generates dependencies safely
 
       - name: Sync Capacitor Web Assets
         run: |
