@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-neon-cyan: #00f0ff;
+    --color-neon-blue: #38bdf8;
+    --color-alarm-red: #ff2a51;
+  }
+
+  body {
+    background-color: #030712;
+    color: #e2e8f0;
+    font-family: 'JetBrains Mono', monospace;
+    overflow-x: hidden;
+    user-select: none;
+  }
+
+  h1, h2, h3, h4, .font-tech {
+    font-family: 'Chakra Petch', sans-serif;
+    letter-spacing: 0.04em;
+  }
+}
+
+/* Custom Scrollbar for Terminal */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(3, 7, 18, 0.8);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.6);
+}
+
+/* Terminal Scanline overlay */
+.terminal-scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+/* Neon Glows */
+.glow-cyan-text {
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.65), 0 0 20px rgba(0, 240, 255, 0.3);
+}
+
+.glow-red-text {
+  text-shadow: 0 0 10px rgba(255, 42, 81, 0.8), 0 0 25px rgba(255, 42, 81, 0.4);
+}
+
+.glow-cyan-box {
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2), inset 0 0 15px rgba(0, 240, 255, 0.05);
+}
+
+.glow-red-box {
+  box-shadow: 0 0 25px rgba(255, 42, 81, 0.35), inset 0 0 20px rgba(255, 42, 81, 0.15);
+}
+
+/* Red Alert Strobe Keyframes for Boss Fight */
+@keyframes red-alert-strobe {
+  0%, 100% {
+    background-color: rgba(255, 42, 81, 0.05);
+    border-color: rgba(255, 42, 81, 0.4);
+  }
+  50% {
+    background-color: rgba(255, 42, 81, 0.18);
+    border-color: rgba(255, 42, 81, 0.9);
+  }
+}
+
+.boss-alert-active {
+  animation: red-alert-strobe 1.5s infinite ease-in-out;
+}
+
+@keyframes screen-shake {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-4px, 3px); }
+  40% { transform: translate(4px, -2px); }
+  60% { transform: translate(-3px, 2px); }
+  80% { transform: translate(2px, -1px); }
+  100% { transform: translate(0, 0); }
+}
+
+.animate-shake {
+  animation: screen-shake 0.35s ease-in-out;
+}
+
+.crt-effect {
+  position: relative;
+}
+.crt-effect::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 10;
+  background-size: 100% 4px, 3px 100%;
+  pointer-events: none;
+}
+.no-select {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}

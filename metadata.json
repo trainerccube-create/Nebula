@@ -1,0 +1,6 @@
+{
+  "name": "Nebula Escape",
+  "description": "A 2D mobile-first precision platformer inspired by Level Devil with unexpected troll traps and anomaly boss battles.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
